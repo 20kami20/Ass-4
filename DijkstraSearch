@@ -1,0 +1,47 @@
+import java.util.*;
+
+public class DijkstraSearch<V> implements Search<V> {
+    private Map<V, V> previous = new HashMap<>();
+    private Map<V, Double> distances = new HashMap<>();
+    private V start;
+
+    public DijkstraSearch(WeightedGraph<V> graph, V start) {
+        this.start = start;
+        dijkstra(graph, start);
+    }
+
+    private void dijkstra(WeightedGraph<V> graph, V root) {
+        PriorityQueue<Vertex<V>> pq = new PriorityQueue<>(Comparator.comparingDouble(v -> distances.get(v.getData())));
+        for (Vertex<V> vertex : graph.getVertices()) {
+            distances.put(vertex.getData(), Double.MAX_VALUE);
+        }
+
+        distances.put(root, 0.0);
+        pq.add(graph.getVertex(root));
+
+        while (!pq.isEmpty()) {
+            Vertex<V> current = pq.poll();
+            V currentData = current.getData();
+
+            for (Map.Entry<Vertex<V>, Double> neighborEntry : current.getAdjacentVertices().entrySet()) {
+                Vertex<V> neighbor = neighborEntry.getKey();
+                double newDist = distances.get(currentData) + neighborEntry.getValue();
+
+                if (newDist < distances.get(neighbor.getData())) {
+                    distances.put(neighbor.getData(), newDist);
+                    previous.put(neighbor.getData(), currentData);
+                    pq.add(neighbor);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<V> getPath(V destination) {
+        List<V> path = new LinkedList<>();
+        for (V at = destination; at != null; at = previous.get(at)) {
+            path.add(0, at);
+        }
+        return path.isEmpty() || !path.get(0).equals(start) ? null : path;
+    }
+}
