@@ -1,0 +1,38 @@
+import java.util.*;
+
+public class BreadthFirstSearch<V> implements Search<V> {
+    private Map<V, V> visited = new HashMap<>();
+    private V start;
+
+    public BreadthFirstSearch(WeightedGraph<V> graph, V start) {
+        this.start = start;
+        bfs(graph, start);
+    }
+
+    private void bfs(WeightedGraph<V> graph, V root) {
+        Queue<V> queue = new LinkedList<>();
+        queue.add(root);
+        visited.put(root, null);
+
+        while (!queue.isEmpty()) {
+            V current = queue.poll();
+            Vertex<V> vertex = graph.getVertex(current);
+            for (Vertex<V> neighbor : vertex.getAdjacentVertices().keySet()) {
+                V neighborData = neighbor.getData();
+                if (!visited.containsKey(neighborData)) {
+                    visited.put(neighborData, current);
+                    queue.add(neighborData);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<V> getPath(V destination) {
+        List<V> path = new LinkedList<>();
+        for (V at = destination; at != null; at = visited.get(at)) {
+            path.add(0, at);
+        }
+        return path.isEmpty() || !path.get(0).equals(start) ? null : path;
+    }
+}
